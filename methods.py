@@ -25,7 +25,7 @@ def plot_gamma(shape = 2, scale = 2):
     fig = go.Figure(data=[trace], layout=layout)
     fig.show()
 
-def plot_plotly(data, mode='lines'):
+def plot_plotly(data, mode='lines', data_label='data'):
 
     mean_value = np.mean(data)
     median_value = np.median(data)
@@ -34,7 +34,7 @@ def plot_plotly(data, mode='lines'):
     fig = go.Figure()
 
     # Add trace for original data
-    fig.add_trace(go.Scatter(y=data, mode=mode, name='Data per iteration'))
+    fig.add_trace(go.Scatter(y=data, mode=mode, name=f'{data_label} per iteration'))
 
     # Add trace for mean
     fig.add_trace(go.Scatter(x=[0, len(data)-1], y=[mean_value, mean_value],
@@ -46,9 +46,9 @@ def plot_plotly(data, mode='lines'):
 
     # Update layout
     fig.update_layout(
-        title=f'Data over {len(data)} iterations',
+        title=f'{data_label} over {len(data)} iterations',
         xaxis_title='Iteration',
-        yaxis_title='Data'
+        yaxis_title= data_label
     )
 
     # Show the plot
