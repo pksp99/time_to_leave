@@ -55,12 +55,12 @@ def plot_plotly(data, mode='lines', data_label='data'):
     fig.show()
 
 
-def cal_actual_time(N, n, intervals):
+def cal_actual_time(n, intervals):
     return sum(intervals[n:])
 
-def cal_cost(late_fee, waiting_charge, actual_time, predicted_time):
+def cal_cost(c, h, actual_time, predicted_time):
     t_diff = actual_time - predicted_time
     if(t_diff > 0):
-        return t_diff * waiting_charge
+        return t_diff * h
     else:
-        return late_fee
+        return c
