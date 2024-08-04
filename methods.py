@@ -2,8 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 import plotly.graph_objs as go
 from scipy.stats import gamma
+import statistics
 
+import importlib
 
+import math_expressions as mexpr
+importlib.reload(mexpr)
+from sympy import Eq, simplify, real_roots, solveset, S, symbols, solve
 
 def plot_gamma(shape = 2, scale = 2):
 
@@ -54,13 +59,38 @@ def plot_plotly(data, mode='lines', data_label='data'):
     # Show the plot
     fig.show()
 
+def multi_plot_plotly(data:list, mode='lines', data_label=['data']):
 
-def cal_actual_time(n, intervals):
+
+    # Create the plot
+    fig = go.Figure()
+
+    for i in range(len(data)):
+        fig.add_trace(go.Scatter(y=data[i], mode=mode, name=f'{data_label[i]} per iteration'))
+
+    # Show the plot
+    fig.show()
+
+def cal_actual_time(n:int, intervals:list[float]) -> float:
     return sum(intervals[n:])
 
-def cal_cost(c, h, actual_time, predicted_time):
+def cal_cost(c:float, h:float, actual_time:float, predicted_time:float) -> float:
     t_diff = actual_time - predicted_time
     if(t_diff > 0):
         return t_diff * h
     else:
         return c
+
+def get_u_star(N:int, alpha:float, beta:float, h:float, c:float) -> float:
+    expr = mexpr.gamma_hazard_rate(alpha * N, beta) - h / c
+    s_expr = (simplify(expr * expr.as_numer_denom()[1]))
+    u_star = real_roots(s_expr)
+    u_star = [sol.evalf() for sol in u_star if sol.is_real and sol > 0]
+    return float(u_star[0])
+
+def gamma_estimate_parameters(n:int, intervals:list[float]) -> tuple[float, float]:
+    mean = statistics.mean(intervals[:n])
+    variance = statistics.variance(intervals[:n])
+    beta = variance / mean
+    alpha  = mean / beta
+    return (alpha, beta)

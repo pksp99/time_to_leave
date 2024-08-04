@@ -21,7 +21,8 @@ def gamma_cdf(alpha, beta, x='x'):
 def gamma_hazard_rate(alpha, beta, x='x'):
     alpha = sympify(alpha)
     beta = sympify(beta)
-    return gamma_pdf(alpha, beta) / (1 - gamma_cdf(alpha, beta))
+    x = sympify(x)
+    return gamma_pdf(alpha, beta, x=x) / (1 - gamma_cdf(alpha, beta, x=x))
 
 
 
@@ -34,7 +35,8 @@ def gamma_cost(alpha, beta, h, c, x='x'):
 
     # Simplified the integral for performance efficiency
     expr = beta * uppergamma(alpha + 1, x / beta) / gamma(alpha)
-    return c * gamma_cdf(alpha, beta) - x * h * (1 - gamma_cdf(alpha, beta)) + h * expr
+    return c * gamma_cdf(alpha, beta, x=x) - x * h * (1 - gamma_cdf(alpha, beta, x=x)) + h * expr
+
 
 
 def plot_expression(expression, x_range, title, x_label, y_label, x='x'):
@@ -52,3 +54,4 @@ def plot_expression(expression, x_range, title, x_label, y_label, x='x'):
     fig.update_layout(title=title, xaxis_title=x_label, yaxis_title=y_label)
     
     fig.show()
+
