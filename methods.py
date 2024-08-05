@@ -8,7 +8,9 @@ import importlib
 
 import math_expressions as mexpr
 importlib.reload(mexpr)
-from sympy import Eq, simplify, real_roots, solveset, S, symbols, solve
+from sympy import Eq, simplify, real_roots, solveset, S, symbols, solve, lambdify
+
+from mpmath import mp
 
 def plot_gamma(shape = 2, scale = 2):
 
@@ -98,7 +100,8 @@ def gamma_estimate_parameters(n:int, intervals:list[float]) -> tuple[float, floa
 
 def get_u_star_binary (N:int, alpha:float, beta:float, h:float, c:float, precision=8) -> float:
 
-    f = lambda x: mexpr.gamma_hazard_rate(alpha * N, beta).subs(symbols('x'), x).evalf()
+    x = symbols('x')
+    f = lambda u: float(mexpr.gamma_hazard_rate(alpha * N, beta).subs(x, u).evalf(5))
     required_value = round(h/c, precision)
     step = 10 ** (-precision)
 
