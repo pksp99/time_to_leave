@@ -94,3 +94,28 @@ def gamma_estimate_parameters(n:int, intervals:list[float]) -> tuple[float, floa
     beta = variance / mean
     alpha  = mean / beta
     return (alpha, beta)
+
+
+def get_u_star_binary (N:int, alpha:float, beta:float, h:float, c:float, precision=8) -> float:
+
+    f = lambda x: mexpr.gamma_hazard_rate(alpha * N, beta).subs(symbols('x'), x).evalf()
+    required_value = round(h/c, precision)
+    step = 10 ** (-precision)
+
+    # Find initial interval
+    start, end = step, step * 2
+    while f(end) < required_value:
+        start, end = end, 2 * end
+
+    # Perform binary search
+    while start < end:
+        mid = round((start + end) / 2, precision)
+        y = round(f(mid), precision)
+        if y == required_value:
+            break
+        elif y > required_value:
+            end = mid - step
+        else:
+            start = mid + step
+
+    return round((start + end) / 2, precision)
