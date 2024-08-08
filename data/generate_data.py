@@ -105,7 +105,7 @@ def update_progress(_):
 
 def main():
     global pbar
-    n = 50
+    n = 5000
     pbar = tqdm(total=n, desc="Processing")
 
     with multiprocessing.Pool() as pool:
