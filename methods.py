@@ -122,3 +122,31 @@ def get_u_star_binary (N:int, alpha:float, beta:float, h:float, c:float, precisi
             start = mid + step
 
     return round((start + end) / 2, precision)
+
+
+def get_u_star_binary_fast (N:int, alpha:float, beta:float, h:float, c:float, precision=8) -> float:
+
+    f = lambda x: gamma.pdf(x, N * alpha, scale=beta)
+    F = lambda x: gamma.cdf(x, N * alpha, scale=beta)
+    ha = lambda x: f(x) / (1 - F(x))
+
+    required_value = round(h/c, precision)
+    step = 10 ** (-precision)
+
+    # Find initial interval
+    start, end = step, step * 2
+    while ha(end) < required_value:
+        start, end = end, 2 * end
+
+    # Perform binary search
+    while start < end:
+        mid = round((start + end) / 2, precision)
+        y = round(ha(mid), precision)
+        if y == required_value:
+            break
+        elif y > required_value:
+            end = mid - step
+        else:
+            start = mid + step
+
+    return round((start + end) / 2, precision)

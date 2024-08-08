@@ -63,21 +63,20 @@ def process_iter(id):
     dic['std_n'] = std_n
 
     alpha_hat, beta_hat = methods.gamma_estimate_parameters(n, intervals)
-    alpha_hat = round(alpha_hat) # fractional alpha has no solution for u*, hencing rounding it.
     dic['alpha_hat'], dic['beta_hat'] = alpha_hat, beta_hat
 
     logging.info(f"Start process-{id}: {dic}")
-    if(alpha_hat < 2 or alpha_hat > 20):
+    if(alpha_hat * N <= 1):
         logging.critical(f'End process-{id}: unable to compute u* or alpha_hat is too large')
         return 'Nil'
 
     u = methods.cal_actual_time(n, intervals)
     dic['u'] = u
 
-    u_star = methods.get_u_star_binary(N, alpha, beta, h, c)
+    u_star = methods.get_u_star_binary_fast(N, alpha, beta, h, c)
     dic['u_star'] = u_star
 
-    u_star_hat = methods.get_u_star_binary(N, alpha_hat, beta_hat, h, c)
+    u_star_hat = methods.get_u_star_binary_fast(N, alpha_hat, beta_hat, h, c)
     dic['u_star_hat'] = u_star_hat
 
     z=u_star / u_star_hat
@@ -105,7 +104,7 @@ def update_progress(_):
 
 def main():
     global pbar
-    n = 5000
+    n = 10000
     pbar = tqdm(total=n, desc="Processing")
 
     with multiprocessing.Pool() as pool:
