@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import plotly.graph_objs as go
 from scipy.stats import gamma
 import statistics
+import math
 
 import importlib
 
@@ -124,11 +125,21 @@ def get_u_star_binary (N:int, alpha:float, beta:float, h:float, c:float, precisi
     return round((start + end) / 2, precision)
 
 
-def get_u_star_binary_fast (N:int, alpha:float, beta:float, h:float, c:float, precision=8) -> float:
-
+def hazard_rate(N, alpha, beta, x):
     f = lambda x: gamma.pdf(x, N * alpha, scale=beta)
     F = lambda x: gamma.cdf(x, N * alpha, scale=beta)
-    ha = lambda x: f(x) / (1 - F(x))
+    h_fast = lambda x: f(x) / (1 - F(x))
+    h_precise = lambda x: (mexpr.gamma_hazard_rate(round(N*alpha), beta).subs(symbols('x'), x).evalf(5))
+
+    x_max = N*alpha*beta + 4*beta*math.sqrt(N*alpha)
+    if x > x_max:
+        return h_precise(x)
+    
+    return h_fast(x)
+
+def get_u_star_binary_fast (N:int, alpha:float, beta:float, h:float, c:float, precision=8) -> float:
+
+    ha = lambda x: hazard_rate(N, alpha, beta, x)
 
     required_value = round(h/c, precision)
     step = 10 ** (-precision)

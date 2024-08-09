@@ -66,9 +66,18 @@ def process_iter(id):
     dic['alpha_hat'], dic['beta_hat'] = alpha_hat, beta_hat
 
     logging.info(f"Start process-{id}: {dic}")
-    if(alpha_hat * N <= 1):
-        logging.critical(f'End process-{id}: unable to compute u* or alpha_hat is too large')
+
+    # Unable to compute u* cases
+    if alpha_hat * N <= 1:
+        logging.critical(f'End process-{id}: alpha_hat < 1')
         return 'Nil'
+    elif h / c >= 1 / beta:
+        logging.critical(f'End process-{id}: Impossible beta: {beta}, for h: {h} and c: {c}')
+        return 'Nil'
+    elif h / c >= 1 / beta_hat:
+        logging.critical(f'End process-{id}: Impossible beta_hat: {beta_hat}, for h: {h} and c: {c}')
+        return 'Nil'
+
 
     u = methods.cal_actual_time(n, intervals)
     dic['u'] = u
