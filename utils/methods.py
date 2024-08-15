@@ -1,4 +1,5 @@
 import math
+import os
 import statistics
 
 import numpy as np
@@ -159,3 +160,16 @@ def get_u_star_binary_fast(N: int, alpha: float, beta: float, h: float, c: float
             start = mid + step
 
     return round((start + end) / 2, precision)
+
+
+def file_path(file_name, dir_name='data'):
+    # Get the directory of the current module
+    module_dir = os.path.dirname(os.path.abspath(__file__))
+
+    # Define the sibling directory path
+    parent_dir = os.path.dirname(module_dir)
+    data_folder_path = os.path.join(parent_dir, dir_name)
+
+    # Create the full file path
+    file_path = os.path.join(data_folder_path, file_name)
+    return file_path
