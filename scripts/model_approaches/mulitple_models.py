@@ -15,7 +15,7 @@ TRAINING_CONFIG = {
     'alpha_range': range(2, 8),
     'beta_range': [round(i * 0.5, 1) for i in range(2, 9)],
     'h_range': [round(i * 0.01, 2) for i in range(6, 61)],
-    'c_range': range(20, 40),
+    'c_range': range(20, 30),
     'N_range': range(10, 40),
     'n_range': [5]
 }
@@ -24,14 +24,14 @@ TEST_CONFIG = {
     'alpha_range': range(2, 8),
     'beta_range': [round(i * 0.5, 1) for i in range(2, 9)],
     'h_range': [round(i * 0.01, 2) for i in range(6, 61)],
-    'c_range': range(20, 40),
+    'c_range': range(20, 30),
     'N_range': range(10, 40),
     'n_range': [5]
 }
 
 EXPERIMENT = 'Random_same'
 
-TOTAL = 100
+TOTAL = 7000
 
 gen_test_file = 'gen_test.csv'
 gen_train_file = 'gen_train.csv'
@@ -46,9 +46,9 @@ def experiment(gen_train_file, gen_test_file, experiment_name):
     train_df = pd.read_csv(methods.file_path(gen_train_file))
     test_df = pd.read_csv(methods.file_path(gen_test_file))
 
-    models = {'linear_model': LinearRegression(),
-                'random_forest_model':RandomForestRegressor(random_state=50, max_features='sqrt', n_estimators=200, min_samples_leaf=2),
-                'gradient_boost_model': GradientBoostingRegressor(random_state=50, min_samples_split=6, min_samples_leaf=2, max_depth=5)
+    models = {'linear': LinearRegression(),
+                'random_forest':RandomForestRegressor(random_state=50, max_features='sqrt', n_estimators=200, min_samples_leaf=2),
+                'gradient_boost': GradientBoostingRegressor(random_state=50, min_samples_split=6, min_samples_leaf=2, max_depth=5)
             }
 
     reports = []
@@ -56,7 +56,7 @@ def experiment(gen_train_file, gen_test_file, experiment_name):
     # Optimal Model
     metrics = {'mean_cost': test_df['optimal_cost'].mean(),
                'median_cost': test_df['optimal_cost'].median()}
-    reports.append(('Optimal_Model', None, metrics))
+    reports.append(('Optimal', None, metrics))
 
 
     # Average Model
@@ -64,7 +64,14 @@ def experiment(gen_train_file, gen_test_file, experiment_name):
     actual_cost_col = get_actual_cost_col(test_df)
     metrics = {'mean_cost': actual_cost_col.mean(),
                 'median_cost': actual_cost_col.median()}
-    reports.append(('Average_Model', None, metrics))
+    reports.append(('Average', None, metrics))
+
+    # u_star_hat estimate Model
+    test_df['predicted_u_star'] = test_df['u_star_hat']
+    actual_cost_col = get_actual_cost_col(test_df)
+    metrics = {'mean_cost': actual_cost_col.mean(),
+                'median_cost': actual_cost_col.median()}
+    reports.append(('u_star_hat_estimate', None, metrics))
 
     for model_name, model in models.items():
         X_train = train_df[['N', 'n', 'h', 'c', 'mean_n', 'std_n', 'alpha_hat', 'beta_hat', 'u_star_hat']]
@@ -135,7 +142,9 @@ def main():
 
     def generate_custom_n(input:str, n:int):
         df = pd.read_csv(methods.file_path(input))
+        total = df['n'] + df['N']
         df['n'] = n
+        df['N'] = total - df['n']
         generate_data.generate(config=dict(),
                             output=str(n)+input,
                             log_file='app.log',

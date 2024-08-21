@@ -50,7 +50,7 @@ def process_iter(config, log_file, index, row=None):
     logging.info(f"Start process-{index}: {row}")
 
     # Unable to compute u* cases
-    if alpha_hat * N <= 1:
+    if alpha_hat * N <= 1 or alpha_hat * N > 200:
         logging.critical(f'End process-{index}: alpha_hat < 1')
         return None
     elif h / c >= 1 / beta:
