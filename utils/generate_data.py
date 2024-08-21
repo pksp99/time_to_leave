@@ -94,14 +94,14 @@ def generate(config, output: str, log_file: str, n: int = 1000, df: pd.DataFrame
     global pbar
     results = []
     if df is None:
-        pbar = tqdm(total=n, desc="Processing")
+        pbar = tqdm(total=n, desc=f"Processing {output}")
         with concurrent.futures.ProcessPoolExecutor() as executor:
             submits = [executor.submit(process_iter, config, log_file, i) for i in range(n)]
             for f in concurrent.futures.as_completed(submits):
                 update_progress(f.result())
                 results.append(f.result())
     else:
-        pbar = tqdm(total=len(df), desc="Processing")
+        pbar = tqdm(total=len(df), desc=f"Processing {output}")
         with concurrent.futures.ProcessPoolExecutor() as executor:
             submits = [executor.submit(process_iter, config, log_file, i, row.to_dict()) for i, row in df.iterrows()]
             for f in concurrent.futures.as_completed(submits):

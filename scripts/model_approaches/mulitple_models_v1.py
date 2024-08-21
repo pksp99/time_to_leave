@@ -40,6 +40,12 @@ gen_train_file = 'gen_train_v1.csv'
 def get_actual_cost_col(df: pd.DataFrame):
     return df.apply(lambda row: methods.cal_cost(row['c'], row['h'], row['u'], row['predicted_u_star']), axis=1)
 
+def mean_absolute_error_percent(actual, predicted):
+    
+    mape = (abs((actual - predicted) / actual)).mean() * 100
+    return mape
+
+
 
 def experiment(gen_train_file, gen_test_file, experiment_name):
 
@@ -55,7 +61,8 @@ def experiment(gen_train_file, gen_test_file, experiment_name):
 
     # Optimal Model
     metrics = {'mean_cost': test_df['optimal_cost'].mean(),
-               'median_cost': test_df['optimal_cost'].median()}
+               'median_cost': test_df['optimal_cost'].median(),
+               'esti_time_dif_percent': mean_absolute_error_percent(test_df['u'], test_df['u_star'])}
     reports.append(('Optimal', None, metrics))
 
 
@@ -63,14 +70,16 @@ def experiment(gen_train_file, gen_test_file, experiment_name):
     test_df['predicted_u_star'] = test_df['N'] * test_df['mean_n']
     actual_cost_col = get_actual_cost_col(test_df)
     metrics = {'mean_cost': actual_cost_col.mean(),
-                'median_cost': actual_cost_col.median()}
+                'median_cost': actual_cost_col.median(),
+                'esti_time_dif_percent': mean_absolute_error_percent(test_df['u'], test_df['predicted_u_star'])}
     reports.append(('Average', None, metrics))
 
     # u_star_hat estimate Model
     test_df['predicted_u_star'] = test_df['u_star_hat']
     actual_cost_col = get_actual_cost_col(test_df)
     metrics = {'mean_cost': actual_cost_col.mean(),
-                'median_cost': actual_cost_col.median()}
+                'median_cost': actual_cost_col.median(),
+                'esti_time_dif_percent': mean_absolute_error_percent(test_df['u'], test_df['predicted_u_star'])}
     reports.append(('u_star_hat_estimate', None, metrics))
 
     for model_name, model in models.items():
@@ -88,6 +97,7 @@ def experiment(gen_train_file, gen_test_file, experiment_name):
 
         metrics = {'mean_cost': actual_cost_col.mean(),
                 'median_cost': actual_cost_col.median(),
+                'esti_time_dif_percent': mean_absolute_error_percent(test_df['u'], test_df['predicted_u_star']),
                 'train_score': model.score(X_train, y_train),
                 'test_score': model.score(X_test, y_test)}
         
@@ -109,6 +119,7 @@ def experiment(gen_train_file, gen_test_file, experiment_name):
 
         metrics = {'mean_cost': actual_cost_col.mean(),
                 'median_cost': actual_cost_col.median(),
+                'esti_time_dif_percent': mean_absolute_error_percent(test_df['u'], test_df['predicted_u_star']),
                 'train_score': model.score(X_train, y_train),
                 'test_score': model.score(X_test, y_test)}
         
