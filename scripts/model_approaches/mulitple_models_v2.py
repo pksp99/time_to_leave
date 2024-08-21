@@ -12,7 +12,7 @@ import mlflow
 
 # Configuration for data generation
 TRAINING_CONFIG = {
-    'alpha_range': range(2, 8),
+    'alpha_range': [2, 4, 6, 10],
     'beta_range': [round(i * 0.5, 1) for i in range(2, 9)],
     'h_range': [round(i * 0.01, 2) for i in range(6, 61)],
     'c_range': range(20, 30),
@@ -21,20 +21,20 @@ TRAINING_CONFIG = {
 }
 
 TEST_CONFIG = {
-    'alpha_range': range(2, 8),
-    'beta_range': [round(i * 0.5, 1) for i in range(2, 9)],
-    'h_range': [round(i * 0.01, 2) for i in range(6, 61)],
-    'c_range': range(20, 30),
-    'N_range': range(10, 40),
+    'alpha_range': [3, 5, 7, 8],
+    'beta_range': [1, 1.5, 2, 3],
+    'h_range': [1 / 15],
+    'c_range': [25],
+    'N_range': range(15, 40),
     'n_range': [5]
 }
 
-EXPERIMENT = 'Random_same'
+EXPERIMENT = 'Delibrate_diff'
 
-TOTAL = 7000
+TOTAL = 20000
 
-gen_test_file = 'gen_test.csv'
-gen_train_file = 'gen_train.csv'
+gen_test_file = 'gen_test_v2.csv'
+gen_train_file = 'gen_train_v2.csv'
 
 
 def get_actual_cost_col(df: pd.DataFrame):
