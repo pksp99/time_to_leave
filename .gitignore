@@ -1,5 +1,8 @@
 data/*.log
 data/*.csv
+HTConder/*.out
+HTConder/*.err
+HTConder/*.log
 mlruns/
 # Byte-compiled / optimized / DLL files
 __pycache__/
