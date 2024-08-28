@@ -1,0 +1,8 @@
+executable  = conda_wrapper.sh
+
+output  = task.out
+error   = task.err
+log     = task.log
+request_cpus    = 30
+request_memory  = 16GB
+queue 1
