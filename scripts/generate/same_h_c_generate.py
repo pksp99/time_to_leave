@@ -38,3 +38,6 @@ def main():
                             gen_train_file,
                             'app.log',
                             n=TOTAL)
+
+if __name__ == '__main__':
+    main()
