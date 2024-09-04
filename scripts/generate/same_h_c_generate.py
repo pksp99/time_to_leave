@@ -1,4 +1,4 @@
-from utils import math_expressions as generate_data
+from utils import generate_data
 
 
 

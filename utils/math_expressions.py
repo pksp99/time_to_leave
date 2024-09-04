@@ -1,6 +1,6 @@
 import numpy as np
 import plotly.graph_objs as go
-from sympy import sympify, E, gamma, lowergamma, uppergamma, simplify
+from sympy import sympify, E, gamma, lowergamma, uppergamma, simplify, exp, Max, Eq, nsolve, S, Piecewise
 
 
 def gamma_pdf(alpha, beta, x='x'):
@@ -53,3 +53,16 @@ def plot_expression(expression, x_range, title, x_label, y_label, x='x'):
     fig.update_layout(title=title, xaxis_title=x_label, yaxis_title=y_label)
 
     fig.show()
+
+def cus_cost(h, c, d):
+    # d => u_predict - u_actual => (x - u)
+    d = sympify(d)
+    h = sympify(h)
+    c = sympify(c)
+    f = c * (1 / (1 + exp(-c * (d))))
+    g = -h * (d)
+    equation = Eq(f, g)
+    sols = nsolve(equation, d, 0)
+    expr = Piecewise((g, d <= sols), (f, True))
+    return expr
+
