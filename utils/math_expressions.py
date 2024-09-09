@@ -98,13 +98,13 @@ def point_of_intersection(f, g, x):
     sols = nsolve(equation, x, 0)
     return re(sols)
 
-@lru_cache(maxsize=256)
+@lru_cache(maxsize=1024)
 def get_POI_cus_cost_expr_1(h, c):
     expr = cus_cost_expr_1(h, c, 'd')
     return float(expr.args[0][1].rhs)
 
 
-@lru_cache(maxsize=256)
+@lru_cache(maxsize=1024)
 def get_POI_cus_cost_expr_2(h, c):
     expr = cus_cost_expr_2(h, c, 'd')
     return float(expr.args[0][1].rhs)
