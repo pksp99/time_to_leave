@@ -2,6 +2,7 @@ import numpy as np
 import plotly.graph_objs as go
 from sympy import sympify, E, gamma, lowergamma, uppergamma, simplify, exp, Max, Eq, nsolve, S, Piecewise, re
 from functools import lru_cache
+import math
 
 
 def gamma_pdf(alpha, beta, x='x'):
@@ -71,7 +72,7 @@ def cus_cost_expr_1_eval(h, c, d):
     if d <= poi:
         return -h * d
     else:
-        return c * (1 / (1 + exp(-c * d)))
+        return c * (1 / (1 + math.e ** (-c * d)))
 
 def cus_cost_expr_2_eval(h, c, d):
     poi = get_POI_cus_cost_expr_2(h, c)
