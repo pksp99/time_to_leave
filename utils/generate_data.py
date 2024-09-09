@@ -86,10 +86,13 @@ def update_progress(_):
     pbar.update()
 
 
-def generate(config, output: str, log_file: str, n: int = 1000, df: pd.DataFrame | None = None):
+def generate(config, output: str, log_file: str, n: int = 1000, df: pd.DataFrame | None = None, overwrite: bool = True):
     # Delete log file if exists
     if os.path.exists(file_path(log_file, 'data')):
         os.remove(file_path(log_file, 'data'))
+
+    if overwrite == False and os.path.exists(file_path(output, 'data')):
+        return
 
     global pbar
     results = []

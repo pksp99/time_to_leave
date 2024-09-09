@@ -1,6 +1,7 @@
 import numpy as np
 import plotly.graph_objs as go
-from sympy import sympify, E, gamma, lowergamma, uppergamma, simplify, exp, Max, Eq, nsolve, S, Piecewise
+from sympy import sympify, E, gamma, lowergamma, uppergamma, simplify, exp, Max, Eq, nsolve, S, Piecewise, re
+from functools import lru_cache
 
 
 def gamma_pdf(alpha, beta, x='x'):
@@ -54,15 +55,55 @@ def plot_expression(expression, x_range, title, x_label, y_label, x='x'):
 
     fig.show()
 
-def cus_cost(h, c, d):
+def cus_cost_expr_1(h, c, d):
     # d => u_predict - u_actual => (x - u)
     d = sympify(d)
     h = sympify(h)
     c = sympify(c)
     f = c * (1 / (1 + exp(-c * (d))))
     g = -h * (d)
-    equation = Eq(f, g)
-    sols = nsolve(equation, d, 0)
+    sols = point_of_intersection(f, g, d)
     expr = Piecewise((g, d <= sols), (f, True))
     return expr
 
+def cus_cost_expr_1_eval(h, c, d):
+    poi = get_POI_cus_cost_expr_1(h, c)
+    if d <= poi:
+        return -h * d
+    else:
+        return c * (1 / (1 + exp(-c * d)))
+
+def cus_cost_expr_2_eval(h, c, d):
+    poi = get_POI_cus_cost_expr_2(h, c)
+    if d <= poi:
+        return h * (-d)**(5/4)
+    else:
+        return h * (d)**(4)
+
+def cus_cost_expr_2(h, c, d):
+    # d => u_predict - u_actual => (x - u)
+    d = sympify(d)
+    h = sympify(h)
+    c = sympify(c)
+    g = h * (-d)**(5/4)
+    f = h * (d)**(4)
+    sols = point_of_intersection(f, g, d)
+    expr = Piecewise((g, d <= sols), (f, True))
+    return expr
+
+
+def point_of_intersection(f, g, x):
+    equation = Eq(f, g)
+    sols = nsolve(equation, x, 0)
+    return re(sols)
+
+@lru_cache(maxsize=256)
+def get_POI_cus_cost_expr_1(h, c):
+    expr = cus_cost_expr_1(h, c, 'd')
+    return float(expr.args[0][1].rhs)
+
+
+@lru_cache(maxsize=256)
+def get_POI_cus_cost_expr_2(h, c):
+    expr = cus_cost_expr_2(h, c, 'd')
+    return float(expr.args[0][1].rhs)
