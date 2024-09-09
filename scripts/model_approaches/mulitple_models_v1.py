@@ -5,6 +5,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 
+import LinearCustomRegressor
+
 from utils import math_expressions as mexpr, methods, generate_data
 
 import mlflow
@@ -81,6 +83,16 @@ def experiment(gen_train_file, gen_test_file, experiment_name):
                 'median_cost': actual_cost_col.median(),
                 'esti_time_dif_percent': mean_absolute_error_percent(test_df['u'], test_df['predicted_u_star'])}
     reports.append(('u_star_hat_estimate', None, metrics))
+
+    # linear custom model
+    l_model = LinearCustomRegressor.MLModel(train_df, test_df)
+    l_model.train()
+    test_df['predicted_u_star'] = l_model.get_predictions()
+    actual_cost_col = get_actual_cost_col(test_df)
+    metrics = {'mean_cost': actual_cost_col.mean(),
+                'median_cost': actual_cost_col.median(),
+                'esti_time_dif_percent': mean_absolute_error_percent(test_df['u'], test_df['predicted_u_star'])}
+    reports.append(('custom_linear', None, metrics))
 
     for model_name, model in models.items():
         X_train = train_df[['N', 'n', 'h', 'c', 'mean_n', 'std_n', 'alpha_hat', 'beta_hat', 'u_star_hat']]
