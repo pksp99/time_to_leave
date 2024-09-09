@@ -22,11 +22,18 @@ class MLModel:
         self.X_train = np.hstack((np.ones((self.X_train.shape[0], 1)), self.X_train))
         self.X_test = np.hstack((np.ones((self.X_test.shape[0], 1)), self.X_test))
 
-    def objective_function(self, theta, X, y, h, c):
+    def objective_function_1(self, theta, X, y, h, c):
         n = len(X)
         predictions = X.dot(theta)
         errors = predictions - y
         cost = np.array([me.cus_cost_expr_1_eval(h_i, c_i, d_i) for h_i, c_i, d_i in zip(h, c, errors)])
+        return np.sum(cost) / n
+    
+    def objective_function_2(self, theta, X, y, h, c):
+        n = len(X)
+        predictions = X.dot(theta)
+        errors = predictions - y
+        cost = np.array([me.cus_cost_expr_2_eval(h_i, c_i, d_i) for h_i, c_i, d_i in zip(h, c, errors)])
         return np.sum(cost) / n
 
     def callback(self, xk):
@@ -34,10 +41,15 @@ class MLModel:
         print(f"Iteration {self.iteration}: x = {xk}")
         print(me.get_POI_cus_cost_expr_1.cache_info())
 
-    def train(self):
+    def train_1(self):
         initial_theta = np.zeros(self.X_train.shape[1])
         self.iteration = 0
-        self.model = minimize(fun=self.objective_function, x0=initial_theta, args=(self.X_train, self.y_train, self.train_df['h'], self.train_df['c']), method='Nelder-Mead', options={'disp':True, 'return_all':True, 'maxiter':10000})
+        self.model = minimize(fun=self.objective_function_1, x0=initial_theta, args=(self.X_train, self.y_train, self.train_df['h'], self.train_df['c']), method='Nelder-Mead', options={'disp':True, 'return_all':True, 'maxiter':10000})
+
+    def train_2(self):
+        initial_theta = np.zeros(self.X_train.shape[1])
+        self.iteration = 0
+        self.model = minimize(fun=self.objective_function_2, x0=initial_theta, args=(self.X_train, self.y_train, self.train_df['h'], self.train_df['c']), method='Nelder-Mead', options={'disp':True, 'return_all':True, 'maxiter':10000})
 
     def get_predictions(self):
         return self.X_test.dot(self.model.x)

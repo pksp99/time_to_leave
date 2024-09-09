@@ -33,6 +33,8 @@ TEST_CONFIG = {
 
 EXPERIMENT = 'Random_same'
 
+OVERWRTITE = False
+
 TOTAL = 20000
 
 gen_test_file = 'gen_test_v1.csv'
@@ -84,15 +86,26 @@ def experiment(gen_train_file, gen_test_file, experiment_name):
                 'esti_time_dif_percent': mean_absolute_error_percent(test_df['u'], test_df['predicted_u_star'])}
     reports.append(('u_star_hat_estimate', None, metrics))
 
-    # linear custom model
+    # linear custom model 1
     l_model = LinearCustomRegressor.MLModel(train_df, test_df)
-    l_model.train()
+    l_model.train_1()
     test_df['predicted_u_star'] = l_model.get_predictions()
     actual_cost_col = get_actual_cost_col(test_df)
     metrics = {'mean_cost': actual_cost_col.mean(),
                 'median_cost': actual_cost_col.median(),
                 'esti_time_dif_percent': mean_absolute_error_percent(test_df['u'], test_df['predicted_u_star'])}
-    reports.append(('custom_linear', None, metrics))
+    reports.append(('custom_linear_1', None, metrics))
+    print(f'custom_linear_1: {gen_train_file}', metrics)
+
+    # linear custom model 2
+    l_model.train_2()
+    test_df['predicted_u_star'] = l_model.get_predictions()
+    actual_cost_col = get_actual_cost_col(test_df)
+    metrics = {'mean_cost': actual_cost_col.mean(),
+                'median_cost': actual_cost_col.median(),
+                'esti_time_dif_percent': mean_absolute_error_percent(test_df['u'], test_df['predicted_u_star'])}
+    reports.append(('custom_linear_2', None, metrics))
+    print(f'custom_linear_2: {gen_train_file}', metrics)
 
     for model_name, model in models.items():
         X_train = train_df[['N', 'n', 'h', 'c', 'mean_n', 'std_n', 'alpha_hat', 'beta_hat', 'u_star_hat']]
@@ -154,12 +167,12 @@ def main():
     generate_data.generate(TEST_CONFIG,
                             gen_test_file,
                             'app.log',
-                            n=TOTAL)
+                            n=TOTAL, overwrite=OVERWRTITE)
 
     generate_data.generate(TRAINING_CONFIG,
                             gen_train_file,
                             'app.log',
-                            n=TOTAL)
+                            n=TOTAL, overwrite=OVERWRTITE)
 
     experiment(gen_test_file=gen_test_file, gen_train_file=gen_train_file, experiment_name=EXPERIMENT)
 
@@ -171,7 +184,7 @@ def main():
         generate_data.generate(config=dict(),
                             output=str(n)+input,
                             log_file='app.log',
-                            df=df)
+                            df=df, overwrite=OVERWRTITE)
 
     for n in [6, 8, 10, 12]:
         n_gen_test_file = str(n) + gen_test_file

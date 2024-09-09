@@ -34,6 +34,7 @@ TEST_CONFIG = {
 EXPERIMENT = 'Delibrate_diff'
 
 TOTAL = 20000
+OVERWRITE = False
 
 gen_test_file = 'gen_test_v2.csv'
 gen_train_file = 'gen_train_v2.csv'
@@ -44,12 +45,12 @@ def main():
     generate_data.generate(TEST_CONFIG,
                             gen_test_file,
                             'app.log',
-                            n=TOTAL)
+                            n=TOTAL, overwrite=OVERWRITE)
 
     generate_data.generate(TRAINING_CONFIG,
                             gen_train_file,
                             'app.log',
-                            n=TOTAL)
+                            n=TOTAL, overwrite=OVERWRITE)
 
     mm.experiment(gen_test_file=gen_test_file, gen_train_file=gen_train_file, experiment_name=EXPERIMENT)
 
@@ -61,7 +62,7 @@ def main():
         generate_data.generate(config=dict(),
                             output=str(n)+input,
                             log_file='app.log',
-                            df=df)
+                            df=df, overwrite=OVERWRITE)
 
     for n in [6, 8, 10, 12]:
         n_gen_test_file = str(n) + gen_test_file
