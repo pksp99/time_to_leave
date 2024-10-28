@@ -106,6 +106,14 @@ class CustomEnv(gym.Env):
         self.std_n = statistics.stdev(self.obs_intervals)
         self.alpha_hat, self.beta_hat = methods.gamma_estimate_parameters(self.n, self.intervals)
         self.last_update = self.cum_sum_intervals[self.n - 1]
+
+        # Unable to compute u* cases
+        if self.alpha_hat * self.N <= 1 or self.alpha_hat * self.N > 600:
+            return
+        elif self.h / self.c >= 1 / self.beta:
+            return
+        elif self.h / self.c >= 1 / self.beta_hat:
+            return
         self.u_star_hat = methods.get_u_star_binary_fast(self.N, self.alpha_hat, self.beta_hat, self.h, self.c)
 
     def reset(self, seed=None, options=None):
@@ -141,7 +149,7 @@ class CustomEnv(gym.Env):
             return self._get_obs(), -cost, True, False, self._get_info() 
 
     def render(self, mode='human'):
-        print(self._get_obs())
+        print(self._get_info()['state'])
 
 from stable_baselines3 import DQN
 from stable_baselines3.common.env_util import make_vec_env
@@ -151,10 +159,10 @@ env = CustomEnv()
 env.reset()
 
 
-model = DQN("MlpPolicy", env, learning_rate=0.001, verbose=1)
+model = DQN("MlpPolicy", env, verbose=1, device='cpu', learning_rate=0.00001)
 
 
-model.learn(total_timesteps=100)
+model.learn(total_timesteps=20000)
 
 
 
@@ -163,10 +171,10 @@ model.save("dqn")
 model = DQN.load("dqn")
 
 
-state, _ = env.reset()
+state, info = env.reset()
 done = False
 total_reward = 0
-model.predict(state)
+print(info)
 
 while not done:
     action, _ = model.predict(state)  
