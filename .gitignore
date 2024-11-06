@@ -1,4 +1,5 @@
 data/*.log
+data/prof_data/*
 data/*.csv
 HTConder/*.out
 HTConder/*.err
