@@ -1,9 +1,4 @@
-import gymnasium as gym
-from gymnasium.spaces import Discrete, Box, Sequence, Dict
-import numpy as np
-from utils import methods
-import statistics
-from utils.rl_environments import GammaIntervalsEnv1
+from utils.rl_environments.env1 import Env1
 
 
 CONFIG = {
@@ -16,10 +11,8 @@ CONFIG = {
 
 
 from stable_baselines3 import DQN
-from stable_baselines3.common.env_util import make_vec_env
-from stable_baselines3.common.vec_env import SubprocVecEnv
 
-env = GammaIntervalsEnv1()
+env = Env1()
 env.reset()
 
 
