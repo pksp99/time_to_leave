@@ -9,7 +9,7 @@ import numpy as np
 def get_realized_data():
     flag = False
     while not flag:
-        alpha = np.random.exponential(scale=8.82)
+        alpha = np.random.exponential(scale=8.82) + 1.02
         beta = np.random.exponential(1.94)
         h = np.random.exponential(1.30)
         c = np.random.exponential(4)
