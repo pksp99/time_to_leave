@@ -1,6 +1,7 @@
 data/*.log
 data/prof_data/*
 data/*.csv
+models/*.zip
 HTConder/*.out
 HTConder/*.err
 HTConder/*.log

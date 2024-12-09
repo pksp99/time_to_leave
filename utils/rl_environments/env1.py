@@ -22,8 +22,10 @@ def get_realized_data(config):
     total = np.random.choice(config['total'])
     intervals = np.random.gamma(shape=alpha, scale=beta, size=total)
     # travel_time = sum(intervals[3:]) - np.random.exponential(scale=beta)
-    travel_time = sum(intervals[3:]) - np.random.gamma(shape=2, scale=alpha*beta)
-    travel_time = max(alpha * beta * 2, travel_time)
+    # travel_time = sum(intervals[3:]) - np.random.gamma(shape=2, scale=alpha*beta)
+    # travel_time = max(alpha * beta * 2, travel_time)
+    travel_time = sum(intervals[3:]) * np.random.uniform(0, 1)
+    travel_time = max(alpha * beta, travel_time)
 
     return alpha, beta, h, c, total, intervals, travel_time
 
@@ -55,7 +57,8 @@ class Env1(gym.Env):
         self.last_update = -1
 
         # 0 = wait, 1 = leave
-        self.action_space = Discrete(2)
+        # self.action_space = Discrete(2)
+        self.action_space = Discrete(4)
 
         obs_dim = 12
         self.observation_space = Box(low=0, high=np.inf, shape=(obs_dim,), dtype=np.float32)
