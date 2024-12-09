@@ -4,28 +4,36 @@ import statistics
 from utils import methods
 import numpy as np
 
+# Internally not using gamma distribution
 
+DEFAULT_CONFIG = {
+    'alpha_range': range(1, 8),
+    'beta_range': [round(i * 0.5, 1) for i in range(2, 9)],
+    'h_range': [round(i * 0.01, 2) for i in range(6, 61)],
+    'c_range': range(20, 30),
+    'total': range(10, 40), 
+}
 
-def get_realized_data():
-    flag = False
-    while not flag:
-        alpha = np.random.exponential(scale=8.82) + 1.02
-        beta = np.random.exponential(1.94)
-        h = np.random.exponential(1.30)
-        c = np.random.exponential(4)
-        flag = alpha and beta and h and c and (h / c < 1 / beta)
-    total = int(np.random.normal(40, 6.3))
+def get_realized_data(config):
+    alpha = np.random.choice(config['alpha_range'])
+    beta = np.random.choice(config['beta_range'])
+    h = np.random.choice(config['h_range'])
+    c = np.random.choice(config['c_range'])
+    total = np.random.choice(config['total'])
     intervals = np.random.gamma(shape=alpha, scale=beta, size=total)
+    # travel_time = sum(intervals[3:]) - np.random.exponential(scale=beta)
+    # travel_time = sum(intervals[3:]) - np.random.gamma(shape=2, scale=alpha*beta)
+    # travel_time = max(alpha * beta * 2, travel_time)
     travel_time = sum(intervals[3:]) * np.random.uniform(0, 1)
     travel_time = max(alpha * beta, travel_time)
 
     return alpha, beta, h, c, total, intervals, travel_time
 
-
 class Env3(gym.Env):
-    def __init__(self, step_size=0.1):
+    def __init__(self, step_size=0.1, config=DEFAULT_CONFIG):
         super(Env3, self).__init__()
 
+        self.config = config
         self.alpha = -1
         self.beta = -1
         self.h = -1
@@ -41,17 +49,19 @@ class Env3(gym.Env):
 
         self.step_size = step_size
 
+
         self.mean_n = -1
         self.std_n = -1
-        self.alpha_hat, self.beta_hat = -1, -1
         self.last_update = -1
 
         # 0 = wait, 1 = leave
-        self.action_space = Discrete(2)
+        # self.action_space = Discrete(2)
+        self.action_space = Discrete(4)
 
-        obs_dim = 11
+        obs_dim = 9
         self.observation_space = Box(low=0, high=np.inf, shape=(obs_dim,), dtype=np.float32)
 
+    
     def _get_obs(self):
         return np.array([
             self.h,
@@ -62,11 +72,10 @@ class Env3(gym.Env):
             self.cur_time,
             self.mean_n,
             self.std_n,
-            self.alpha_hat,
-            self.beta_hat,
             self.last_update
         ], dtype=np.float32)
-
+    
+    
     def _get_info(self):
 
         return {
@@ -85,21 +94,21 @@ class Env3(gym.Env):
                 'cur_time': self.cur_time,
                 'mean_n': self.mean_n,
                 'std_n': self.std_n,
-                'alpha_hat': self.alpha_hat,
-                'beta_hat': self.beta_hat,
                 'last_update': self.last_update
             }
         }
-
     def cal_derived_data(self):
         self.N = self.total - self.n
         self.obs_intervals = self.intervals[:self.n]
         self.mean_n = statistics.mean(self.obs_intervals)
         self.std_n = statistics.stdev(self.obs_intervals)
-        self.alpha_hat, self.beta_hat = methods.gamma_estimate_parameters(self.n, self.intervals)
         self.last_update = self.cum_sum_intervals[self.n - 1]
+        
 
-    def reset(self, seed=None, options=None, row=None):
+    def reset(self, seed=None, options=None, config=None, row=None):
+
+        if config is None:
+            config = self.config
 
         if row is not None:
             self.h = row['h']
@@ -112,11 +121,11 @@ class Env3(gym.Env):
                 self.intervals = row['intervals'].tolist()
 
         else:
-            self.alpha, self.beta, self.h, self.c, self.total, self.intervals, self.travel_time = get_realized_data()
-
+            self.alpha, self.beta, self.h, self.c, self.total, self.intervals, self.travel_time = get_realized_data(config)
+        
         self.cum_sum_intervals = np.cumsum(self.intervals)
 
-        self.n = 3
+        self.n =  3
 
         self.cur_time = self.cum_sum_intervals[self.n - 1]
 
@@ -131,8 +140,7 @@ class Env3(gym.Env):
             action = 1
 
         if action == 1:
-            cost = methods.cal_cost(c=self.c, h=self.h, actual_time=self.cum_sum_intervals[-1],
-                                    predicted_time=self.cur_time + self.travel_time)
+            cost = methods.cal_cost(c=self.c, h=self.h, actual_time=self.cum_sum_intervals[-1], predicted_time=self.cur_time + self.travel_time)
             self.obs_intervals = self.intervals[:self.total]
             self.n = self.total
             self.N = 0
