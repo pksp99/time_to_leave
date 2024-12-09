@@ -110,6 +110,9 @@ class Env1(gym.Env):
         self.obs_intervals = self.intervals[:self.n]
         self.mean_n = statistics.mean(self.obs_intervals)
         self.std_n = statistics.stdev(self.obs_intervals)
+        self.step_size = self.mean_n / 10
+
+
         self.alpha_hat, self.beta_hat = methods.gamma_estimate_parameters(self.n, self.intervals)
         self.last_update = self.cum_sum_intervals[self.n - 1]
         

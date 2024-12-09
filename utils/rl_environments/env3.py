@@ -102,6 +102,7 @@ class Env3(gym.Env):
         self.obs_intervals = self.intervals[:self.n]
         self.mean_n = statistics.mean(self.obs_intervals)
         self.std_n = statistics.stdev(self.obs_intervals)
+        self.step_size = self.mean_n / 10
         self.last_update = self.cum_sum_intervals[self.n - 1]
         
 
